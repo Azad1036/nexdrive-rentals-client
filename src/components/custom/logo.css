@@ -1,0 +1,12 @@
+.nav-bar {
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-bar:hover {
+  background-color: #6366f1; /* hover:bg-indigo-500 */
+  color: white; /* hover:text-white */
+}
