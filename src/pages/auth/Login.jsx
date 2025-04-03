@@ -6,8 +6,30 @@ import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const { googleLogin, githubLogin } = useAuth();
+  const { setUser, loginAccount, googleLogin, githubLogin } = useAuth();
   const navigate = useNavigate();
+
+  //! User Login Account
+  const handleLoginForm = (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+    const loginData = { email, password };
+    console.log(loginData);
+    loginAccount(email, password)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        setUser(user);
+        toast.success("You have successfully logged in!");
+        navigate("/");
+      })
+      .catch(() => {
+        toast.error("Email or Password is incorrect");
+      });
+  };
 
   // Google Login User
   const handleGoogleLogin = () => {
@@ -51,21 +73,26 @@ const Login = () => {
         <div className="mb-6 text-center">
           <img className="w-60 mx-auto" src={Name} alt="LeetCode Logo" />
         </div>
-        <div className="flex flex-col space-y-4">
+        <form onSubmit={handleLoginForm} className="flex flex-col space-y-4">
           <input
             className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"
             type="text"
+            name="email"
             placeholder="Username or Email"
           />
           <input
             className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"
             type="password"
+            name="password"
             placeholder="Password"
           />
-          <button className="w-full p-3 text-white bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg hover:opacity-90 shadow-md">
+          <button
+            type="submit"
+            className="w-full p-3 text-white bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg hover:opacity-90 shadow-md"
+          >
             Sign in
           </button>
-        </div>
+        </form>
         <div className="flex justify-between mt-4 text-sm text-gray-600">
           <a href="#" className="hover:underline">
             Forgot password?

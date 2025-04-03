@@ -6,7 +6,13 @@ import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 
 const Register = () => {
-  const { googleLogin, githubLogin } = useAuth();
+  const {
+    setUser,
+    createNewAccount,
+    updateUserProfile,
+    googleLogin,
+    githubLogin,
+  } = useAuth();
   const navigate = useNavigate();
 
   //!User Register Info
@@ -18,8 +24,30 @@ const Register = () => {
     const photoUrl = form.photoUrl.value;
     const password = form.password.value;
 
-    const userData = { fullName, email, photoUrl, password };
-    console.log(userData);
+    const registerData = { fullName, email, photoUrl, password };
+    console.log(registerData);
+
+    createNewAccount(email, password)
+      .then((result) => {
+        const user = result.user;
+        setUser(user);
+        navigate("/");
+        updateUserProfile({
+          displayName: fullName,
+          photoURL: photoUrl,
+        })
+          .then(() => {
+            toast.success("You have successfully registered!");
+          })
+          .catch((err) => {
+            {
+              err.message && toast.error("Try Again");
+            }
+          });
+      })
+      .catch(() => {
+        toast.error("Email Already Used");
+      });
   };
 
   // Google Login User
