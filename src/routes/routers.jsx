@@ -4,6 +4,10 @@ import Home from "../pages/Home";
 import Login from "../pages/auth/Login";
 import ErrorPage from "../pages/ErrorPage";
 import Register from "../pages/auth/Register";
+import AddCar from "../pages/AddCar";
+import AllAvailableCars from "../pages/AllAvailableCars";
+import CarDetails from "../pages/CarDetails";
+import PrivateRouter from "./PrivateRouter";
 
 const routers = createBrowserRouter([
   {
@@ -19,6 +23,24 @@ const routers = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/available-cars",
+        element: <AllAvailableCars />,
+      },
+      {
+        path: "car-details/:id",
+        element: (
+          <PrivateRouter>
+            <CarDetails />
+          </PrivateRouter>
+        ),
+        loader: ({ params }) =>
+          fetch(`${import.meta.env.VITE_API_URL}/car-details/${params.id}`),
+      },
+      {
+        path: "/add-car",
+        element: <AddCar />,
       },
     ],
   },

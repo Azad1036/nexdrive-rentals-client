@@ -3,14 +3,14 @@ import companyLogo from "../assets/NexDrive-Rentals-Logo.svg";
 import "./custom/logo.css"; // Keeping this if you have additional custom styles
 import { FaBars, FaMoon } from "react-icons/fa";
 import { useState } from "react";
+import useAuth from "../hooks/useAuth";
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  
-  const isAuthenticated = false; // Replace with your auth state (e.g., from Firebase)
+  const { user, signOutUser } = useAuth(); // Destructure user and signOutUser function from useAuth
 
   // Conditional Links based on authentication
-  const links = isAuthenticated ? (
+  const links = user ? (
     <>
       <NavLink
         to="/"
@@ -117,8 +117,11 @@ const Navbar = () => {
           {/* Desktop View */}
           <div className="hidden md:flex items-center space-x-4">
             {links}
-            {isAuthenticated ? (
-              <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300">
+            {user ? (
+              <button
+                onClick={signOutUser} // Call signOutUser function when clicked
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"
+              >
                 Logout
               </button>
             ) : (
@@ -142,8 +145,11 @@ const Navbar = () => {
         {toggleMenu && (
           <div className="md:hidden mt-4 flex flex-col items-center space-y-4 pb-4">
             {links}
-            {isAuthenticated ? (
-              <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300">
+            {user ? (
+              <button
+                onClick={signOutUser} // Call signOutUser function when clicked
+                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"
+              >
                 Logout
               </button>
             ) : (
