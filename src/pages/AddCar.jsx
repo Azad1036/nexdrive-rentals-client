@@ -36,8 +36,7 @@ const AddCar = () => {
       },
     };
 
-    const { data } = await axiosSecure.post("/car-added", addCarData);
-    console.log(data);
+    await axiosSecure.post("/car-added", addCarData);
   };
 
   return (

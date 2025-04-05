@@ -1,35 +1,81 @@
 import { useLoaderData } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import Swal from "sweetalert2";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import { useMutation } from "@tanstack/react-query";
 
 const CarDetails = () => {
   const carDetailsData = useLoaderData();
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const email = user?.email;
+
   const {
+    _id,
     carModel,
     dailyRentalPrice,
     availability,
+    vehicleRegistrationNumber,
     features,
     carImage,
     location,
     description,
-    vehicleRegistrationNumber,
   } = carDetailsData;
 
-  // const car = {
-  //   model: "Toyota Camry 2023",
-  //   dailyPrice: 45,
-  //   availability: true,
-  //   features: [
-  //     "GPS Navigation",
-  //     "Bluetooth",
-  //     "Air Conditioning",
-  //     "Backup Camera",
-  //   ],
-  //   description:
-  //     "The Toyota Camry offers a comfortable ride with excellent fuel economy. Perfect for city driving and long trips alike.",
-  //   imageUrl: "https://example.com/camry.jpg",
-  //   location: "Downtown Branch",
-  //   bookingCount: 12,
-  //   registrationNumber: "CAM2023XYZ",
-  // };
+  const bookingData = {
+    _id,
+    carModel,
+    dailyRentalPrice,
+    availability,
+    vehicleRegistrationNumber,
+    features,
+    carImage,
+    location,
+    description,
+    email,
+  };
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (userBookingData) => {
+      await axiosSecure.post("/my-booking", userBookingData);
+    },
+    onSuccess: () => {
+      alert(123);
+    },
+    onError: () => {
+      console.log(364);
+    },
+  });
+
+  const handleConfirmation = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure you want to book?",
+      text: "We look forward to serving you!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, confirm booking!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await mutateAsync(bookingData);
+        Swal.fire({
+          title: "Booking Confirmed!",
+          text: "Your booking has been saved successfully.",
+          icon: "success",
+        });
+      } catch (error) {
+        console.error("Booking failed:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "There was a problem saving your booking.",
+          icon: "error",
+        });
+      }
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -114,7 +160,10 @@ const CarDetails = () => {
           </div>
 
           {/* Book Now Button */}
-          <button className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition duration-200">
+          <button
+            onClick={handleConfirmation}
+            className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition duration-200"
+          >
             Book Now
           </button>
         </div>

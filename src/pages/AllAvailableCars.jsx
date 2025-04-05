@@ -10,8 +10,6 @@ const AllAvailableCars = () => {
   const {
     data: cars = [],
     isLoading,
-    isError,
-    error,
   } = useQuery({
     queryKey: ["cars"],
     queryFn: async () => {
@@ -23,10 +21,7 @@ const AllAvailableCars = () => {
   });
 
   if (isLoading) return <Loading />;
-  if (isError)
-    return (
-      <div className="text-red-500 text-center">Error: {error.message}</div>
-    );
+  
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
