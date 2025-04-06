@@ -1,11 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAuth from "../hooks/useAuth";
+import { useMutation } from "@tanstack/react-query";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const AddCar = () => {
   const axiosSecure = useAxiosSecure();
   const currentData = new Date();
   const { user } = useAuth();
+  const navigation = useNavigate();
+
+  const [features, setFeatures] = useState([]);
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (addCarData) => {
+      await axiosSecure.post("/car-added", addCarData);
+    },
+    onSuccess: () => {
+      Swal.fire({
+        title: "Success!",
+        text: "Your car has been added successfully.",
+        icon: "success",
+        position: "center",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+
+      navigation("/my-cars");
+    },
+    onError: () => {
+      console.log(364);
+    },
+  });
 
   const handleAddCardForm = async (e) => {
     e.preventDefault();
@@ -14,7 +42,6 @@ const AddCar = () => {
     const dailyRentalPrice = form.dailyRentalPrice.value;
     const availability = form.availability.value;
     const vehicleRegistrationNumber = form.vehicleRegistrationNumber.value;
-    const features = form.features.value;
     const carImage = form.carImage.value;
     const location = form.location.value;
     const description = form.description.value;
@@ -36,7 +63,20 @@ const AddCar = () => {
       },
     };
 
-    await axiosSecure.post("/car-added", addCarData);
+    try {
+      await mutateAsync(addCarData);
+    } catch (error) {
+      toas
+    }
+  };
+
+  const handleFeatureChange = (e) => {
+    const value = e.target.value;
+    if (e.target.checked) {
+      setFeatures([...features, value]);
+    } else {
+      setFeatures(features.filter((item) => item !== value));
+    }
   };
 
   return (
@@ -103,20 +143,77 @@ const AddCar = () => {
             />
           </div>
 
-          {/* Features (Now as a Dropdown like Availability) */}
+          {/* Features (Now in Single Line) */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Features
             </label>
-            <select
-              name="features"
-              className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
-            >
-              <option>GPS</option>
-              <option>AC</option>
-              <option>Bluetooth</option>
-              <option>Sunroof</option>
-            </select>
+            <div className="mt-2 flex gap-4 flex-wrap">
+              <div className="flex items-center">
+                <input
+                  onChange={handleFeatureChange}
+                  id="feature-gps"
+                  name="features"
+                  type="checkbox"
+                  value="GPS"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="feature-gps"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  GPS
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  onChange={handleFeatureChange}
+                  id="feature-ac"
+                  name="features"
+                  type="checkbox"
+                  value="AC"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="feature-ac"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  AC
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  onChange={handleFeatureChange}
+                  id="feature-bluetooth"
+                  name="features"
+                  type="checkbox"
+                  value="Bluetooth"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="feature-bluetooth"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  Bluetooth
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  onChange={handleFeatureChange}
+                  id="feature-sunroof"
+                  name="features"
+                  type="checkbox"
+                  value="Sunroof"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="feature-sunroof"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  Sunroof
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* Booking Count */}
