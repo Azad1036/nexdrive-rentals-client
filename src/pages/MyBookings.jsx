@@ -1,17 +1,20 @@
 import React from "react";
 import useAuth from "../hooks/useAuth";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Loading from "../components/Loading";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const MyBookings = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
 
   // My Booking Data Get From Database
-  const { data: myBooking, isLoading } = useQuery({
+  const { data: myBooking = [], isLoading } = useQuery({
     queryKey: ["booking", user?.email],
     queryFn: async () => {
       const { data } = await axios.get(
@@ -27,45 +30,44 @@ const MyBookings = () => {
       await axiosSecure.delete(`/remove-bookingCar/${deleteBookingData}`);
     },
     onSuccess: () => {
-      alert(123);
+      queryClient.invalidateQueries({ queryKey: ["booking", user?.email] });
+      Swal.fire({
+        title: "Deleted",
+        text: "Your booking has been removed.",
+        icon: "success",
+      });
     },
     onError: () => {
-      console.log(364);
+      Swal.fire({
+        title: "Error!",
+        text: "There was a problem deleting your booking.",
+        icon: "error",
+      });
     },
   });
-
-  if (isLoading) return <Loading />;
 
   // Delete Booking Function logic
   const handleDeleteBooking = async (id) => {
     const result = await Swal.fire({
-      title: "Are you sure you want to book?",
-      text: "We look forward to serving you!",
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, confirm booking!",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
       try {
         await mutateAsync(id);
-        Swal.fire({
-          title: "Booking Confirmed!",
-          text: "Your booking has been saved successfully.",
-          icon: "success",
-        });
       } catch (error) {
-        console.error("Booking failed:", error);
-        Swal.fire({
-          title: "Error!",
-          text: "There was a problem saving your booking.",
-          icon: "error",
-        });
+        toast.error(error.message || "Something went wrong. Try again.");
       }
     }
   };
+
+  if (isLoading) return <Loading />;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -91,34 +93,19 @@ const MyBookings = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Vehicle
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Booking Details
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Price
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
+                <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -131,7 +118,7 @@ const MyBookings = () => {
                 >
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-16 w-24 rounded-md overflow-hidden">
+                      <div className="h-16 w-24 rounded-md overflow-hidden">
                         <img
                           className="h-full w-full object-cover"
                           src={booking.carImage}
@@ -149,19 +136,23 @@ const MyBookings = () => {
                     </div>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 font-medium">{}</div>
-                    <div className="text-sm text-gray-500">3 days rental</div>
+                    <div className="text-sm text-gray-900 font-medium">
+                      {booking.startDate} - {booking.endDate}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {booking.totalDays} days rental
+                    </div>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
                     <div className="text-sm font-bold text-gray-900">
-                      {booking.dailyRentalPrice}
+                      ${booking.totalPrice}
                     </div>
                     <div className="text-xs text-gray-500">
                       incl. taxes & fees
                     </div>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap">
-                    {/* <span
+                    <span
                       className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         booking.status === "Confirmed"
                           ? "bg-green-100 text-green-800"
@@ -171,7 +162,7 @@ const MyBookings = () => {
                       }`}
                     >
                       {booking.status}
-                    </span> */}
+                    </span>
                   </td>
                   <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
@@ -193,7 +184,7 @@ const MyBookings = () => {
                         Modify
                       </button>
                       <button
-                        onClick={() => handleDeleteBooking(booking?._id)}
+                        onClick={() => handleDeleteBooking(booking._id)}
                         className="text-red-600 hover:text-red-900 flex items-center"
                       >
                         <svg
@@ -220,6 +211,24 @@ const MyBookings = () => {
           </table>
         </div>
       </div>
+      {/* Optional: Empty state */}
+      {myBooking.length === 0 && (
+        <div className="text-center py-12 bg-white rounded-lg shadow-sm mt-6">
+          <i className="fas fa-car text-4xl text-gray-300 mb-4"></i>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No Booking cars added yet
+          </h3>
+          <p className="text-gray-500 mb-4">
+            Start by adding your first car to the platform
+          </p>
+          <Link
+            to="/available-cars"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md inline-flex items-center"
+          >
+            <i className="fas fa-plus mr-2"></i> Booking Now
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

@@ -43,19 +43,35 @@ const routers = createBrowserRouter([
       },
       {
         path: "/add-car",
-        element: <AddCar />,
+        element: (
+          <PrivateRouter>
+            <AddCar />
+          </PrivateRouter>
+        ),
       },
       {
         path: "/my-cars",
-        element: <MyCars />,
+        element: (
+          <PrivateRouter>
+            <MyCars />
+          </PrivateRouter>
+        ),
       },
       {
         path: "/update-car-details/:id",
-        element: <UpdateCar />,
+        element: (
+          <PrivateRouter>
+            <UpdateCar />
+          </PrivateRouter>
+        ),
       },
       {
         path: "/my-bookings",
-        element: <MyBookings />,
+        element: (
+          <PrivateRouter>
+            <MyBookings />
+          </PrivateRouter>
+        ),
       },
     ],
   },

@@ -113,7 +113,7 @@ const CarDetails = () => {
               </span>
               <span className="text-gray-600">/day</span>
             </div>
-            <span
+            {/* <span
               className={`px-3 py-1 rounded-full text-sm ${
                 { availability }
                   ? "bg-green-100 text-green-800"
@@ -121,7 +121,7 @@ const CarDetails = () => {
               }`}
             >
               {availability ? "Available Now" : "Currently Unavailable"}
-            </span>
+            </span> */}
           </div>
 
           {/* Key Features */}

@@ -1,11 +1,15 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Loading from "../components/Loading";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 const UpdateCar = () => {
   const { id } = useParams();
+  const axiosSecure = useAxiosSecure();
 
   // Update Cars Data Get From Database
   const { data: updateCar, isLoading } = useQuery({
@@ -15,6 +19,22 @@ const UpdateCar = () => {
         `${import.meta.env.VITE_API_URL}/update-car/${id}`
       );
       return data;
+    },
+  });
+
+  const { mutateAsync } = useMutation({
+    mutationFn: async (updateData) => {
+      await axiosSecure.put(`/update-car-details/${id}`, updateData);
+    },
+    onSuccess: () => {
+      Swal.fire("Updated!", "Your car details have been updated.", "success");
+    },
+    onError: () => {
+      Swal.fire(
+        "Error!",
+        "There was a problem updating your car details.",
+        "error"
+      );
     },
   });
 
@@ -41,9 +61,23 @@ const UpdateCar = () => {
       description,
     };
 
-    console.log(updateCarData);
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-    // await axiosSecure.post("/car-added", addCarData);
+    if (result.isConfirmed) {
+      try {
+        await mutateAsync(updateCarData);
+      } catch (error) {
+        toast.error(error.message || "Something went wrong. Try again.");
+      }
+    }
   };
 
   if (isLoading) return <Loading />;
