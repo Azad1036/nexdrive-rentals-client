@@ -3,11 +3,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Loading from "../components/Loading";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import Swal from "sweetalert2";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const MyCars = () => {
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   // My Cars Data Get From Database
   const { data: myCarList, isLoading } = useQuery({
@@ -20,8 +23,51 @@ const MyCars = () => {
     },
   });
 
+  // Delete Booking Api Call
+  const { mutateAsync } = useMutation({
+    mutationFn: async (deleteBookingData) => {
+      await axiosSecure.delete(`/delete-myCar/${deleteBookingData}`);
+    },
+    onSuccess: () => {
+      alert(123);
+    },
+    onError: () => {
+      console.log(364);
+    },
+  });
 
   if (isLoading) return <Loading />;
+
+  // Delete Booking Function logic
+  const handleDeleteMyCar = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure you want to book?",
+      text: "We look forward to serving you!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, confirm booking!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await mutateAsync(id);
+        Swal.fire({
+          title: "Booking Confirmed!",
+          text: "Your booking has been saved successfully.",
+          icon: "success",
+        });
+      } catch (error) {
+        console.error("Booking failed:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "There was a problem saving your booking.",
+          icon: "error",
+        });
+      }
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -127,7 +173,10 @@ const MyCars = () => {
                     >
                       Update
                     </Link>
-                    <button className="text-red-600 hover:text-red-900">
+                    <button
+                      onClick={() => handleDeleteMyCar(carlist._id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
                       Delete
                     </button>
                   </td>
@@ -149,12 +198,12 @@ const MyCars = () => {
         <p className="text-gray-500 mb-4">
           Start by adding your first car to the platform
         </p>
-        <a
-          href="/add-car"
+        <Link
+          to="/add-car"
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md inline-flex items-center"
         >
           <i className="fas fa-plus mr-2"></i> Add Car
-        </a>
+        </Link>
       </div>
     </div>
   );

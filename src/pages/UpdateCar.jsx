@@ -79,6 +79,7 @@ const UpdateCar = () => {
               Daily Rental Price ($)
             </label>
             <input
+              defaultValue={updateCar?.dailyRentalPrice}
               type="number"
               name="dailyRentalPrice"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
@@ -92,6 +93,7 @@ const UpdateCar = () => {
               Availability
             </label>
             <select
+              defaultValue={updateCar?.availability}
               name="availability"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
             >
@@ -106,6 +108,7 @@ const UpdateCar = () => {
               Vehicle Registration Number
             </label>
             <input
+              defaultValue={updateCar?.vehicleRegistrationNumber}
               name="vehicleRegistrationNumber"
               type="text"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
@@ -119,6 +122,7 @@ const UpdateCar = () => {
               Features
             </label>
             <select
+              defaultValue={updateCar?.features}
               name="features"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
             >
@@ -148,6 +152,7 @@ const UpdateCar = () => {
               Image URL
             </label>
             <input
+              defaultValue={updateCar?.carImage}
               name="carImage"
               type="url"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
@@ -161,6 +166,7 @@ const UpdateCar = () => {
               Location
             </label>
             <input
+              defaultValue={updateCar?.location}
               name="location"
               type="text"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
@@ -174,6 +180,7 @@ const UpdateCar = () => {
               Description
             </label>
             <textarea
+              defaultValue={updateCar?.description}
               type="text"
               name="description"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
@@ -187,7 +194,7 @@ const UpdateCar = () => {
               type="submit"
               className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300"
             >
-              Add Car
+              Update Car
             </button>
           </div>
         </form>
