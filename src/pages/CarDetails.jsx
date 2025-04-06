@@ -11,7 +11,7 @@ const CarDetails = () => {
   const email = user?.email;
 
   const {
-    _id,
+    _id: carId,
     carModel,
     dailyRentalPrice,
     availability,
@@ -23,7 +23,7 @@ const CarDetails = () => {
   } = carDetailsData;
 
   const bookingData = {
-    _id,
+    carId,
     carModel,
     dailyRentalPrice,
     availability,

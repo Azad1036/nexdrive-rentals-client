@@ -1,14 +1,17 @@
 import React from "react";
 import useAuth from "../hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Loading from "../components/Loading";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 const MyBookings = () => {
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   const { data: myBooking, isLoading } = useQuery({
-    queryKey: ["cars"],
+    queryKey: ["booking", user?.email],
     queryFn: async () => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_API_URL}/my-all-booking/${user?.email}`
@@ -17,6 +20,51 @@ const MyBookings = () => {
     },
   });
 
+  // Delete Booking Api Call
+  const { mutateAsync } = useMutation({
+    mutationFn: async (deleteBookingData) => {
+      await axiosSecure.delete(`/remove-bookingCar/${deleteBookingData}`);
+    },
+    onSuccess: () => {
+      alert(123);
+    },
+    onError: () => {
+      console.log(364);
+    },
+  });
+
+  if (isLoading) return <Loading />;
+
+  // Delete Booking Function logic
+  const handleDeleteBooking = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure you want to book?",
+      text: "We look forward to serving you!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, confirm booking!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await mutateAsync(id);
+        Swal.fire({
+          title: "Booking Confirmed!",
+          text: "Your booking has been saved successfully.",
+          icon: "success",
+        });
+      } catch (error) {
+        console.error("Booking failed:", error);
+        Swal.fire({
+          title: "Error!",
+          text: "There was a problem saving your booking.",
+          icon: "error",
+        });
+      }
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -143,7 +191,10 @@ const MyBookings = () => {
                         </svg>
                         Modify
                       </button>
-                      <button className="text-red-600 hover:text-red-900 flex items-center">
+                      <button
+                        onClick={() => handleDeleteBooking(booking?._id)}
+                        className="text-red-600 hover:text-red-900 flex items-center"
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="h-5 w-5 mr-1"
@@ -168,36 +219,7 @@ const MyBookings = () => {
           </table>
         </div>
       </div>
-
-      {/* Empty state example (hidden) */}
-      <div className="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-        <svg
-          className="mx-auto h-12 w-12 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1}
-            d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <h3 className="mt-2 text-lg font-medium text-gray-900">
-          No bookings yet
-        </h3>
-        <p className="mt-1 text-gray-500">
-          Get started by making your first car rental booking.
-        </p>
-        <div className="mt-6">
-          <button className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
-            Book a Car
-          </button>
-        </div>
-      </div>
     </div>
-
   );
 };
 
