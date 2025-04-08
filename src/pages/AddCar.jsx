@@ -59,6 +59,7 @@ const AddCar = () => {
       description,
       set_count: 0,
       currentData,
+      status: "Pending",
       buyer: {
         name: user?.displayName,
         email: user?.email,

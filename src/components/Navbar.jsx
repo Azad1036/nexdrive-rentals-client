@@ -62,6 +62,16 @@ const Navbar = () => {
       >
         My Bookings
       </NavLink>
+      <NavLink
+        to="/manage-cars"
+        className={({ isActive }) =>
+          `px-3 py-2 rounded-md text-sm font-medium ${
+            isActive ? "text-teal-400 bg-gray-100" : "text-gray-700"
+          } hover:text-teal-400 transition-colors duration-300`
+        }
+      >
+        Manage Cars
+      </NavLink>
     </>
   ) : (
     <>

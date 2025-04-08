@@ -3,36 +3,40 @@ import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { useMutation } from "@tanstack/react-query";
+import { formatISO } from "date-fns";
 
 const CarDetails = () => {
   const carDetailsData = useLoaderData();
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const email = user?.email;
+  const formattedTime = new Date();
+  const bookingCurrentDate = formatISO(formattedTime);
 
   const {
     _id: carId,
+    carImage,
     carModel,
     dailyRentalPrice,
     availability,
     vehicleRegistrationNumber,
     features,
-    carImage,
     location,
     description,
+    status,
+    buyer,
   } = carDetailsData;
 
   const bookingData = {
     carId,
     carModel,
     dailyRentalPrice,
-    availability,
+    bookingCurrentDate,
     vehicleRegistrationNumber,
-    features,
     carImage,
-    location,
-    description,
+    status,
     email,
+    buyer: buyer.email,
   };
 
   const { mutateAsync } = useMutation({
@@ -40,131 +44,126 @@ const CarDetails = () => {
       await axiosSecure.post("/my-booking", userBookingData);
     },
     onSuccess: () => {
-      alert(123);
+      Swal.fire({
+        title: "Booked!",
+        text: "Your car is reserved.",
+        icon: "success",
+      });
     },
-    onError: () => {
-      console.log(364);
+    onError: (error) => {
+      console.error("Booking failed:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Booking failed.",
+        icon: "error",
+      });
     },
   });
 
   const handleConfirmation = async () => {
     const result = await Swal.fire({
-      title: "Are you sure you want to book?",
-      text: "We look forward to serving you!",
-      icon: "warning",
+      title: "Book this car?",
+      text: "Ready to roll?",
+      icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, confirm booking!",
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#ef4444",
+      confirmButtonText: "Yes, Book!",
     });
 
     if (result.isConfirmed) {
-      try {
-        await mutateAsync(bookingData);
-        Swal.fire({
-          title: "Booking Confirmed!",
-          text: "Your booking has been saved successfully.",
-          icon: "success",
-        });
-      } catch (error) {
-        console.error("Booking failed:", error);
-        Swal.fire({
-          title: "Error!",
-          text: "There was a problem saving your booking.",
-          icon: "error",
-        });
-      }
+      await mutateAsync(bookingData);
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Car Image Section */}
-        <div className="lg:w-1/2">
-          <div className="bg-gray-100 rounded-lg overflow-hidden mb-4">
-            <img
-              src={carImage}
-              alt={carModel}
-              className="w-full h-64 md:h-96 object-cover"
-            />
-          </div>
+      {/* Full-Width Image */}
+      <div className="relative w-full h-64 md:h-80 bg-gray-100 rounded-xl overflow-hidden mb-6 shadow-md">
+        <img
+          src={
+            carImage ||
+            "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+          }
+          alt={carModel}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+        />
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
+            {carModel}
+          </h1>
+          <p className="text-lg font-semibold text-white">
+            ${dailyRentalPrice}/day
+          </p>
+        </div>
+        <span
+          className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${
+            availability === "Available"
+              ? "bg-green-500 text-white"
+              : "bg-red-500 text-white"
+          }`}
+        >
+          {availability}
+        </span>
+      </div>
 
-          {/* Additional Images Thumbnails */}
-          <div className="grid grid-cols-4 gap-2">
-            {[1, 2, 3, 4].map((item) => (
-              <div
-                key={item}
-                className="bg-gray-200 h-20 rounded cursor-pointer"
-              ></div>
-            ))}
+      {/* Details Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Left: Features */}
+        <div className="md:col-span-2">
+          <h2 className="text-xl font-semibold text-gray-800 mb-3">Features</h2>
+          <ul className="space-y-2 mb-6">
+            {features && features.length > 0 ? (
+              features.map((item, index) => (
+                <li key={index} className="flex items-center text-gray-700">
+                  <span className="mr-2 text-indigo-500">✔</span>
+                  {item}
+                </li>
+              ))
+            ) : (
+              <li className="text-gray-600">No features listed.</li>
+            )}
+          </ul>
+
+          {/* Description */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-3">
+              Description
+            </h2>
+            <p className="text-gray-700 break-words">
+              {description || "No description available."}
+            </p>
           </div>
         </div>
 
-        {/* Car Details Section */}
-        <div className="lg:w-1/2">
-          <h1 className="text-3xl font-bold mb-2">{carModel}</h1>
-
-          {/* Price and Availability */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <span className="text-2xl font-semibold">
-                ${dailyRentalPrice}
-              </span>
-              <span className="text-gray-600">/day</span>
-            </div>
-            {/* <span
-              className={`px-3 py-1 rounded-full text-sm ${
-                { availability }
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
-              {availability ? "Available Now" : "Currently Unavailable"}
-            </span> */}
-          </div>
-
-          {/* Key Features */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Features</h2>
-            <ul className="grid grid-cols-2 gap-2">
-              {/* {features.map((item, index) => (
-                <li key={index} className="flex items-center">
-                  <span className="mr-2 text-green-500">✓</span>
-                  {item}
-                </li>
-              ))} */}
-            </ul>
-          </div>
-
-          {/* Description */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Description</h2>
-            <p className="text-gray-700">{description}</p>
-          </div>
-
-          {/* Additional Information */}
-          <div className="border-t border-gray-200 pt-4">
-            <div className="grid grid-cols-2 gap-4">
+        {/* Right: Info & Booking */}
+        <div className="md:col-span-1 flex flex-col">
+          <div className="bg-gray-50 p-4 rounded-xl shadow-sm flex-grow">
+            <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-medium text-gray-500">Location</h3>
-                <p>{location}</p>
+                <p className="text-sm font-medium text-gray-500">Location</p>
+                <p className="text-gray-800">{location || "N/A"}</p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">
-                  Registration Number
-                </h3>
-                <p>{vehicleRegistrationNumber}</p>
+                <p className="text-sm font-medium text-gray-500">
+                  Registration
+                </p>
+                <p className="text-gray-800">
+                  {vehicleRegistrationNumber || "N/A"}
+                </p>
               </div>
             </div>
           </div>
-
-          {/* Book Now Button */}
           <button
             onClick={handleConfirmation}
-            className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition duration-200"
+            disabled={availability === "Not Available"}
+            className={`mt-4 w-full py-2 px-4 rounded-lg font-medium text-white transition-all duration-300 ${
+              availability === "Available"
+                ? "bg-indigo-600 hover:bg-indigo-700"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
           >
-            Book Now
+            {availability === "Available" ? "Book Now" : "Unavailable"}
           </button>
         </div>
       </div>

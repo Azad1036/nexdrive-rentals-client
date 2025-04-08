@@ -7,19 +7,20 @@ import useAxiosSecure from "../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import MyAllBookingCar from "./MyAllBookingCar";
 
-const MyBookings = () => {
+const ManageCars = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
 
   // My Booking Data Get From Database
-  const { data: myBooking = [], isLoading } = useQuery({
+  const { data: manageCar = [], isLoading } = useQuery({
     queryKey: ["booking", user?.email],
     queryFn: async () => {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/my-all-booking/${user?.email}`
+        `${import.meta.env.VITE_API_URL}/my-all-booking/${
+          user?.email
+        }?buyer=true`
       );
       return data;
     },
@@ -68,7 +69,7 @@ const MyBookings = () => {
     }
   };
 
-  // // Modify Booking Date (UI only - no logic)
+  // Modify Booking Date (UI only - no logic)
   const handleModifyBooking = (booking) => {
     Swal.fire({
       title: "Modify Booking Dates",
@@ -149,65 +150,8 @@ const MyBookings = () => {
         </div>
       </div>
 
-      {/* Filter and Search Section */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border border-gray-200">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Status Filter */}
-          <div className="w-full md:w-1/4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Status
-            </label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-              <option value="">All Statuses</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-
-          {/* Date Range Filter */}
-          <div className="w-full md:w-1/4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Date
-            </label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-              <option value="">All Dates</option>
-              <option value="upcoming">Upcoming</option>
-              <option value="past">Past</option>
-              <option value="current">Current</option>
-            </select>
-          </div>
-
-          {/* Search Input */}
-          <div className="w-full md:w-2/4 relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Bookings
-            </label>
-            <input
-              type="text"
-              placeholder="Search by car model, location..."
-              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            />
-            <svg
-              className="absolute left-3 bottom-2.5 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
-
       {/* Bookings Table */}
-      {myBooking.length > 0 ? (
+      {manageCar.length > 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -231,13 +175,97 @@ const MyBookings = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {myBooking.map((booking) => (
-                  <MyAllBookingCar
-                    booking={booking}
-                    key={booking._Id}
-                    handleDeleteBooking={handleDeleteBooking}
-                    handleModifyBooking={handleModifyBooking}
-                  />
+                {manageCar.map((booking) => (
+                  <tr
+                    key={booking._id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center">
+                        
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {booking.email}
+                          </div>
+                       
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="text-sm text-gray-900 font-medium">
+                        {new Date(booking.startDate).toLocaleDateString()} -{" "}
+                        {new Date(booking.endDate).toLocaleDateString()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {booking.totalDays} days rental
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="text-lg font-bold text-gray-900">
+                        ${booking.dailyRentalPrice}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        incl. taxes & fees
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <span
+                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          booking.status === "Confirmed"
+                            ? "bg-green-100 text-green-800"
+                            : booking.status === "Pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {booking.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-3">
+                        <button
+                          onClick={() => handleModifyBooking(booking)}
+                          className="text-blue-600 hover:text-blue-900 flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          Modify
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBooking(booking._id)}
+                          className="text-red-600 hover:text-red-900 flex items-center gap-1 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                          Cancel
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -294,4 +322,4 @@ const MyBookings = () => {
   );
 };
 
-export default MyBookings;
+export default ManageCars;
