@@ -7,11 +7,13 @@ import useAxiosSecure from "../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { FaTrashAlt } from "react-icons/fa";
+import { FcAcceptDatabase } from "react-icons/fc";
 
 const ManageCars = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-  const queryClient = useQueryClient();
+  //   const queryClient = useQueryClient();
 
   // My Booking Data Get From Database
   const { data: manageCar = [], isLoading } = useQuery({
@@ -28,11 +30,11 @@ const ManageCars = () => {
 
   // Delete Booking Api Call
   const { mutateAsync } = useMutation({
-    mutationFn: async (deleteBookingData) => {
-      await axiosSecure.delete(`/remove-bookingCar/${deleteBookingData}`);
+    mutationFn: async ({ id, status }) => {
+      // PATCH request with status in body
+      await axiosSecure.patch(`/update-booking-status/${id}`, { status });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["booking", user?.email] });
       Swal.fire({
         title: "Deleted",
         text: "Your booking has been removed.",
@@ -48,70 +50,17 @@ const ManageCars = () => {
     },
   });
 
-  // Delete Booking Function logic
-  const handleDeleteBooking = async (id) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await mutateAsync(id);
-      } catch (error) {
-        toast.error(error.message || "Something went wrong. Try again.");
-      }
+  // Change Status
+  const handleStatusChange = async (id, previousStatus, status) => {
+    if (previousStatus === status || previousStatus === "Accepted") {
+      return toast.success("Not Allowed");
     }
-  };
 
-  // Modify Booking Date (UI only - no logic)
-  const handleModifyBooking = (booking) => {
-    Swal.fire({
-      title: "Modify Booking Dates",
-      html: `
-        <div class="text-left">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Current Dates</label>
-            <p class="text-gray-600">${new Date(
-              booking.startDate
-            ).toLocaleDateString()} - ${new Date(
-        booking.endDate
-      ).toLocaleDateString()}</p>
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">New Start Date</label>
-            <input type="date" id="startDate" class="w-full px-3 py-2 border rounded-lg">
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">New End Date</label>
-            <input type="date" id="endDate" class="w-full px-3 py-2 border rounded-lg">
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: "Update Booking",
-      cancelButtonText: "Cancel",
-      focusConfirm: false,
-      preConfirm: () => {
-        return {
-          startDate: document.getElementById("startDate").value,
-          endDate: document.getElementById("endDate").value,
-        };
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire(
-          "Updated!",
-          "Your booking dates have been modified.",
-          "success"
-        );
-      }
-    });
+    try {
+      await mutateAsync({ id, status }); // pass as object
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (isLoading) return <Loading />;
@@ -182,12 +131,10 @@ const ManageCars = () => {
                   >
                     <td className="px-6 py-5">
                       <div className="flex items-center">
-                        
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
                             {booking.email}
                           </div>
-                       
                         </div>
                       </div>
                     </td>
@@ -224,43 +171,36 @@ const ManageCars = () => {
                     <td className="px-6 py-5 text-right text-sm font-medium">
                       <div className="flex justify-end space-x-3">
                         <button
-                          onClick={() => handleModifyBooking(booking)}
-                          className="text-blue-600 hover:text-blue-900 flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colors"
+                          onClick={() =>
+                            handleStatusChange(
+                              booking?._id,
+                              booking?.status,
+                              "Accepted"
+                            )
+                          }
+                          className={`text-blue-600 hover:text-blue-900 flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-md hover:bg-blue-100 transition-colorss ${
+                            booking.status === "Accepted" &&
+                            "cursor-not-allowed"
+                          }`}
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          Modify
+                          <FcAcceptDatabase />
+                          Accepted
                         </button>
                         <button
-                          onClick={() => handleDeleteBooking(booking._id)}
-                          className="text-red-600 hover:text-red-900 flex items-center gap-1 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors"
+                          onClick={() =>
+                            handleStatusChange(
+                              booking?._id,
+                              booking?.status,
+                              "Canceled"
+                            )
+                          }
+                          className={`text-red-600 hover:text-red-900 flex items-center gap-1 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors ${
+                            booking.status === "Accepted" &&
+                            "cursor-not-allowed"
+                          }`}
+                          disabled={booking.status === "Accepted"}
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
+                          <FaTrashAlt />
                           Cancel
                         </button>
                       </div>

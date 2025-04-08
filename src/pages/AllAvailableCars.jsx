@@ -1,19 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Loading from "../components/Loading";
 import { Link } from "react-router-dom";
+import { CiSearch } from "react-icons/ci";
 
 const AllAvailableCars = () => {
   const [gridView, setGridView] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
+  // Debounce search term to avoid rapid API calls
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 500); // Adjust debounce delay as needed
+
+    return () => clearTimeout(timeoutId); // Cleanup on searchTerm change
+  }, [searchTerm]);
 
   const { data: cars = [], isLoading } = useQuery({
-    queryKey: ["cars", searchTerm],
+    queryKey: ["cars", debouncedSearchTerm], // Use debounced search term for better performance
     queryFn: async () => {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/all-cars?searchTerm=${searchTerm}`
+        `${
+          import.meta.env.VITE_API_URL
+        }/all-cars?searchTerm=${debouncedSearchTerm}`
       );
       return data;
     },
@@ -50,17 +63,12 @@ const AllAvailableCars = () => {
           <input
             type="text"
             placeholder="Search by model, brand, or location..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full shadow-sm   "
-            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full shadow-sm"
+            onChange={(e) => setSearchTerm(e.target.value)} // Update searchTerm on change
+            value={searchTerm} // Bind searchTerm to the input field
           />
           <div className="absolute inset-y-0 left-3 flex items-center text-gray-400">
-            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <CiSearch />
           </div>
         </div>
 
@@ -157,7 +165,7 @@ const AllAvailableCars = () => {
               >
                 <img
                   src={
-                    car.image ||
+                    car?.carImage ||
                     "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
                   }
                   alt={car.carModel}

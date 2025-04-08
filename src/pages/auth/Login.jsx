@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Name from "../../assets/Name.png";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const Login = () => {
   const { setUser, loginAccount, googleLogin, githubLogin } = useAuth();
@@ -16,12 +17,10 @@ const Login = () => {
     const form = e.target;
     const email = form.email.value;
     const password = form.password.value;
-    const loginData = { email, password };
-    console.log(loginData);
+
     loginAccount(email, password)
       .then((result) => {
         const user = result.user;
-        console.log(user);
         setUser(user);
         toast.success("You have successfully logged in!");
         navigate("/");
@@ -32,10 +31,11 @@ const Login = () => {
   };
 
   // Google Login User
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     googleLogin()
       .then((result) => {
         const user = result.user;
+
         {
           user && toast.success("You have successfully Login");
         }

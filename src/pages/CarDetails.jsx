@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { useMutation } from "@tanstack/react-query";
 import { formatISO } from "date-fns";
+import { toast } from "react-toastify";
 
 const CarDetails = () => {
   const carDetailsData = useLoaderData();
@@ -70,9 +71,17 @@ const CarDetails = () => {
       cancelButtonColor: "#ef4444",
       confirmButtonText: "Yes, Book!",
     });
+    
+    if (user.email === buyer.email) {
+      return toast("Are You Not Allow Your Car Booking")
+    }
 
     if (result.isConfirmed) {
-      await mutateAsync(bookingData);
+      try {
+        await mutateAsync(bookingData);
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 

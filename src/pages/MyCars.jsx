@@ -21,7 +21,7 @@ const MyCars = () => {
   const { data: myCarList = [], isLoading } = useQuery({
     queryKey: ["myCars", user?.email, filterDate, sortPrice],
     queryFn: async () => {
-      const { data } = await axios.get(
+      const { data } = await axiosSecure.get(
         `${import.meta.env.VITE_API_URL}/my-carList/${
           user?.email
         }?filterDate=${filterDate}`

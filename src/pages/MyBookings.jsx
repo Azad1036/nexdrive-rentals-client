@@ -113,6 +113,21 @@ const MyBookings = () => {
     });
   };
 
+  // Change Status
+  const handleStatusChange = async (id, previousStatus, status) => {
+    console.log(id, previousStatus, status);
+    if (previousStatus === status || previousStatus === "Accepted") {
+      return toast.success("Not Allowed");
+    }
+
+    try {
+      await axiosSecure.patch(`/update-booking-status/${id}`, { status });
+    } catch (error) {
+      console.log(error);
+    }
+    handleStatusChange();
+  };
+
   if (isLoading) return <Loading />;
 
   return (
@@ -237,6 +252,7 @@ const MyBookings = () => {
                     key={booking._Id}
                     handleDeleteBooking={handleDeleteBooking}
                     handleModifyBooking={handleModifyBooking}
+                    handleStatusChange={handleStatusChange}
                   />
                 ))}
               </tbody>

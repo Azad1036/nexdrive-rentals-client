@@ -10,6 +10,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 export const AuthContextProvider = createContext();
 const googleProvider = new GoogleAuthProvider();
@@ -18,6 +19,7 @@ const githubProvider = new GithubAuthProvider();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const axiosSecure = useAxiosSecure();
 
   // Create New Account
   const createNewAccount = (email, password) => {
@@ -33,20 +35,24 @@ const AuthProvider = ({ children }) => {
 
   //Google Login
   const googleLogin = () => {
+    setLoading(true);
     return signInWithPopup(auth, googleProvider);
   };
   // Github Login
   const githubLogin = () => {
+    setLoading(true);
     return signInWithPopup(auth, githubProvider);
   };
 
   // Update Profile
   const updateUserProfile = (updateData) => {
+    setLoading(true);
     return updateProfile(auth.currentUser, updateData);
   };
 
   // SignOut User
   const signOutUser = () => {
+    setLoading(true);
     return signOut(auth);
   };
 
@@ -64,12 +70,18 @@ const AuthProvider = ({ children }) => {
 
   // user Store
   useEffect(() => {
-    const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser?.email) {
+        setUser(currentUser);
+        await axiosSecure.post(`/jwt`, { email: currentUser?.email });
+      } else {
+        setUser(currentUser);
+        await axiosSecure.get("/logoutCookie");
+      }
       setLoading(false);
     });
     return () => unSubscribe();
-  }, []);
+  }, [axiosSecure]);
 
   return (
     <AuthContextProvider.Provider value={userInfo}>
