@@ -1,5 +1,4 @@
-// MyCars.jsx
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Loading from "../components/Loading";
@@ -8,18 +7,24 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
+import MyAllCars from "../components/MyAllCars";
 
 const MyCars = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
+  const [filterDate, setFilterDate] = useState("");
+  const [sortPrice, setSortPrice] = useState("");
+  console.log(filterDate);
 
   // Get My Car List
   const { data: myCarList = [], isLoading } = useQuery({
-    queryKey: ["myCars", user?.email],
+    queryKey: ["myCars", user?.email, filterDate, sortPrice],
     queryFn: async () => {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/my-carList/${user?.email}`
+        `${import.meta.env.VITE_API_URL}/my-carList/${
+          user?.email
+        }?filterDate=${filterDate}`
       );
       return data;
     },
@@ -73,13 +78,29 @@ const MyCars = () => {
         </Link>
       </div>
 
-      {/* Sorting UI (Optional, not functional yet) */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+      {/* Sorting and Search UI */}
+      <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm mb-6">
+        {/* Left side: Sorting by Date */}
         <div className="flex items-center space-x-4">
-          <span className="text-gray-600">Sort by:</span>
-          <select className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <select
+            onChange={(e) => setFilterDate(e.target.value)}
+            value={filterDate}
+            className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={""}>Sort by Date</option>
             <option value="date-desc">Date Added (Newest First)</option>
             <option value="date-asc">Date Added (Oldest First)</option>
+          </select>
+        </div>
+
+        {/* Right side: Sorting by Price */}
+        <div className="flex items-center space-x-4">
+          <select
+            onChange={(e) => setSortPrice(e.target.value)}
+            defaultValue="Sort by Price"
+            className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option disabled>Sort by Price</option>
             <option value="price-asc">Price (Lowest First)</option>
             <option value="price-desc">Price (Highest First)</option>
           </select>
@@ -116,61 +137,12 @@ const MyCars = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {myCarList.map((carlist, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="h-10 w-16">
-                      <img
-                        className="h-10 w-16 rounded object-cover"
-                        src={carlist.image}
-                        alt="Car"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {carlist.carModel}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      ${carlist.dailyRentalPrice}/day
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {carlist.totalBookings || 0}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        carlist.availability === "Available"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {carlist.availability}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {carlist.dateAdded || "N/A"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link
-                      to={`/update-car-details/${carlist._id}`}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                    >
-                      Update
-                    </Link>
-                    <button
-                      onClick={() => handleDeleteMyCar(carlist._id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+              {myCarList.map((carlist) => (
+                <MyAllCars
+                  key={carlist._id}
+                  carlist={carlist}
+                  handleDeleteMyCar={handleDeleteMyCar}
+                />
               ))}
             </tbody>
           </table>

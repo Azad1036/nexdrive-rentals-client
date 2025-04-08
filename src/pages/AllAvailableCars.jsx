@@ -2,49 +2,56 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Loading from "../components/Loading";
-import { Link } from "react-router-dom"; // Fixed import
+import { Link } from "react-router-dom";
 
 const AllAvailableCars = () => {
-  const [gridView, setGridView] = useState(false);
+  const [gridView, setGridView] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOption, setSortOption] = useState("");
 
-  const {
-    data: cars = [],
-    isLoading,
-  } = useQuery({
-    queryKey: ["cars"],
+  const { data: cars = [], isLoading } = useQuery({
+    queryKey: ["cars", searchTerm],
     queryFn: async () => {
       const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/all-cars`
+        `${import.meta.env.VITE_API_URL}/all-cars?searchTerm=${searchTerm}`
       );
       return data;
     },
   });
 
+  // Filter and sort cars
+  const filteredCars = cars.sort((a, b) => {
+    if (sortOption === "highest")
+      return b.dailyRentalPrice - a.dailyRentalPrice;
+    if (sortOption === "lowest") return a.dailyRentalPrice - b.dailyRentalPrice;
+    return 0;
+  });
+
   if (isLoading) return <Loading />;
-  
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Page Header */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Discover Our Available Cars
+          Discover Our <span className="text-blue-600">Premium</span> Fleet
         </h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Explore a wide range of cars available for rent. Choose your perfect
-          ride for the journey ahead. Affordable, reliable, and ready when you
-          are.
+          Find your perfect ride from our curated collection of vehicles.
+          Whether for business or leisure, we have the right car for your
+          journey.
         </p>
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-10">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-10 bg-white p-4 rounded-xl shadow-sm">
         {/* Search */}
         <div className="relative w-full md:w-1/2">
           <input
             type="text"
             placeholder="Search by model, brand, or location..."
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full shadow-sm   "
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <div className="absolute inset-y-0 left-3 flex items-center text-gray-400">
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -60,12 +67,14 @@ const AllAvailableCars = () => {
         {/* View Toggle & Sort */}
         <div className="flex items-center gap-4">
           {/* Toggle Button */}
-          <div className="flex bg-gray-100 rounded-full border border-gray-300 overflow-hidden">
+          <div className="flex bg-gray-100 rounded-full border border-gray-200 overflow-hidden shadow-inner">
             <button
-              onClick={() => setGridView(false)}
+              onClick={() => setGridView(true)}
               className={`p-2 ${
-                !gridView ? "bg-white text-blue-600" : "text-gray-500"
-              } hover:bg-blue-100 transition`}
+                gridView
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-500 hover:bg-gray-200"
+              } transition`}
               aria-label="Grid View"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -73,10 +82,12 @@ const AllAvailableCars = () => {
               </svg>
             </button>
             <button
-              onClick={() => setGridView(true)}
+              onClick={() => setGridView(false)}
               className={`p-2 ${
-                gridView ? "bg-white text-blue-600" : "text-gray-500"
-              } hover:bg-blue-100 transition`}
+                !gridView
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-500 hover:bg-gray-200"
+              } transition`}
               aria-label="List View"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -91,7 +102,11 @@ const AllAvailableCars = () => {
 
           {/* Sort Dropdown */}
           <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 text-gray-700 py-2 pl-4 pr-10 rounded-full shadow-sm focus:ring-2 focus:ring-blue-500 text-sm">
+            <select
+              className="appearance-none bg-white border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-full shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
               <option value="">Sort By</option>
               <option value="highest">Highest Price</option>
               <option value="lowest">Lowest Price</option>
@@ -105,67 +120,108 @@ const AllAvailableCars = () => {
         </div>
       </div>
 
-      {/* Cars Grid/List */}
-      <div
-        className={`grid gap-8 ${
-          gridView ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-        }`}
-      >
-        {cars.map((car) => (
-          <div
-            key={car._id}
-            className={`bg-white border border-gray-200 rounded-xl overflow-hidden shadow hover:shadow-lg transition ${
-              gridView ? "flex flex-col sm:flex-row items-center" : ""
-            }`}
-          >
-            {/* Image */}
-            <div
-              className={`${
-                gridView ? "w-full sm:w-40 h-48 sm:h-28" : "h-48"
-              } bg-gray-100 overflow-hidden`}
-            >
-              <img
-                src={
-                  car.image ||
-                  "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                }
-                alt={car.carModel}
-                className="w-full h-full object-cover"
-              />
-            </div>
+      {/* Results Count */}
+      <div className="mb-6 text-sm text-gray-500">
+        Showing {filteredCars.length}{" "}
+        {filteredCars.length === 1 ? "car" : "cars"}
+      </div>
 
-            {/* Content */}
+      {/* Cars Grid/List */}
+      {filteredCars.length === 0 ? (
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium text-gray-700">No cars found</h3>
+          <p className="text-gray-500 mt-2">
+            Try adjusting your search or filters
+          </p>
+        </div>
+      ) : (
+        <div
+          className={`gap-6 ${
+            gridView
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+              : "space-y-4"
+          }`}
+        >
+          {filteredCars.map((car) => (
             <div
-              className={`p-4 flex flex-col ${
-                gridView
-                  ? "sm:flex-row sm:justify-between sm:items-center w-full"
-                  : ""
+              key={car._id}
+              className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition transform hover:-translate-y-1 ${
+                !gridView ? "flex flex-col sm:flex-row" : ""
               }`}
             >
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {car.carModel}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {car.year || "2022"} • {car.location || "New York"}
-                </p>
-                <p className="text-base font-bold text-blue-600 mt-1">
-                  ${car.dailyRentalPrice} /day
-                </p>
+              {/* Image */}
+              <div
+                className={`relative ${
+                  gridView ? "h-48" : "h-48 sm:h-32 sm:w-48 flex-shrink-0"
+                }`}
+              >
+                <img
+                  src={
+                    car.image ||
+                    "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                  }
+                  alt={car.carModel}
+                  className="w-full h-full object-cover"
+                />
+                {car?.availability && (
+                  <div className="absolute top-3 left-3 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-full">
+                    {car.availability}
+                  </div>
+                )}
               </div>
 
-              <div className={`${gridView ? "sm:mt-0 mt-4" : "mt-4"}`}>
-                <Link
-                  to={`/car-details/${car._id}`}
-                  className="bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-4 rounded-full text-sm font-medium transition"
-                >
-                  Book Now
-                </Link>
+              {/* Content */}
+              <div className={`p-5 ${!gridView ? "sm:flex-grow" : ""}`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">
+                      {car.carModel}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      -{car.vehicleRegistrationNumber || "2022"} •{" "}
+                      {car.location || "New York"}
+                    </p>
+                  </div>
+                  <div className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                    {car.type || "Sedan"}
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl font-bold text-blue-600">
+                      ${car.dailyRentalPrice}
+                      <span className="text-sm font-normal text-gray-500">
+                        {" "}
+                        /day
+                      </span>
+                    </p>
+                  </div>
+                  <Link
+                    to={`/car-details/${car._id}`}
+                    className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-5 rounded-full text-sm font-medium transition inline-flex items-center"
+                  >
+                    Book Now
+                    <svg
+                      className="w-4 h-4 ml-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -4,10 +4,12 @@ import useAuth from "../hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { formatISO } from "date-fns";
 
 const AddCar = () => {
   const axiosSecure = useAxiosSecure();
-  const currentData = new Date();
+  const formattedTime = new Date();
+  const currentData = formatISO(formattedTime);
   const { user } = useAuth();
   const navigation = useNavigate();
 
@@ -66,7 +68,7 @@ const AddCar = () => {
     try {
       await mutateAsync(addCarData);
     } catch (error) {
-      toas
+      console.log(error);
     }
   };
 
