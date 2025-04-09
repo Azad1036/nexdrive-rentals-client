@@ -37,7 +37,7 @@ const MyAllBookingCar = ({
       </td>
       <td className="px-6 py-5">
         <div className="text-sm text-gray-900 font-medium">
-          {formattedDate} - {new Date(booking.endDate).toLocaleDateString()}
+          {formattedDate} - {formattedDate}
         </div>
         <div className="text-sm text-gray-500">
           {booking.totalDays} days rental

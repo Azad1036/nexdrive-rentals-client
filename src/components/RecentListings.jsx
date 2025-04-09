@@ -1,74 +1,26 @@
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import React from "react";
+import Loading from "./Loading";
+import { Link } from "react-router-dom";
 
 const RecentListings = () => {
-  const listings = [
-    {
-      id: 1,
-      image:
-        "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      model: "Toyota Camry 2023",
-      price: "$45/day",
-      availability: "Available",
-      bookingCount: 12,
-      posted: "Added 2 days ago",
-      featured: false,
+  const { data: listings = [], isLoading, isError } = useQuery({
+    queryKey: ["cars"],
+    queryFn: async () => {
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/recent-allCars`
+        );
+        return data;
+      } catch (error) {
+        throw new Error("Failed to fetch listings");
+      }
     },
-    {
-      id: 2,
-      image:
-        "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      model: "Ford Mustang GT 2022",
-      price: "$89/day",
-      availability: "Available",
-      bookingCount: 8,
-      posted: "Added 1 week ago",
-      featured: true,
-    },
-    {
-      id: 3,
-      image:
-        "https://images.unsplash.com/photo-1502877338535-766e1452684a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      model: "Honda Civic 2023",
-      price: "$38/day",
-      availability: "Booked",
-      bookingCount: 15,
-      posted: "Added 3 days ago",
-      featured: false,
-    },
-    {
-      id: 4,
-      image:
-        "https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      model: "Tesla Model 3 2023",
-      price: "$75/day",
-      availability: "Available",
-      bookingCount: 5,
-      posted: "Added 5 days ago",
-      featured: false,
-    },
-    {
-      id: 5,
-      image:
-        "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      model: "Chevrolet Tahoe 2022",
-      price: "$65/day",
-      availability: "Available",
-      bookingCount: 7,
-      posted: "Added 1 day ago",
-      featured: true,
-    },
-    {
-      id: 6,
-      image:
-        "https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      model: "BMW X5 2023",
-      price: "$95/day",
-      availability: "Available",
-      bookingCount: 3,
-      posted: "Added 4 days ago",
-      featured: false,
-    },
-  ];
+  });
+
+  if (isLoading) return <Loading />;
+  if (isError) return <div className="text-red-600 text-center">Something went wrong while fetching the listings. Please try again later.</div>;
 
   return (
     <section className="py-16 bg-white">
@@ -80,16 +32,16 @@ const RecentListings = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {listings.map((car) => (
             <div
-              key={car.id}
+              key={car._id}
               className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
             >
               <div className="relative">
                 <img
-                  src={car.image}
-                  alt={car.model}
+                  src={car.carImage || "/path/to/default-image.jpg"} // Fallback image in case of missing image
+                  alt={car.carModel || "Car Image"} // Fallback alt text
                   className="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
                 />
-                {car.featured && (
+                {car.features && (
                   <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
                     Featured
                   </div>
@@ -102,10 +54,10 @@ const RecentListings = () => {
               <div className="p-5">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-xl font-semibold text-gray-800">
-                    {car.model}
+                    {car.carModel}
                   </h3>
                   <span className="text-lg font-bold text-red-600">
-                    {car.price}
+                    ${car.dailyRentalPrice}
                   </span>
                 </div>
 
@@ -119,12 +71,17 @@ const RecentListings = () => {
                   >
                     {car.availability}
                   </span>
-                  <span>Booked {car.bookingCount} times</span>
+                  <span>Booked {car.set_count} times</span>
                 </div>
 
-                <button className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors duration-300">
-                  View Details
-                </button>
+                <div>
+                  <Link
+                    to={`/car-details/${car._id}`}
+                    className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-center inline-block transition-colors duration-300"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
             </div>
           ))}

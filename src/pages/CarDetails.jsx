@@ -52,10 +52,9 @@ const CarDetails = () => {
       });
     },
     onError: (error) => {
-      console.error("Booking failed:", error);
       Swal.fire({
         title: "Error!",
-        text: "Booking failed.",
+        text: "You Already Booking This Car",
         icon: "error",
       });
     },
@@ -71,9 +70,9 @@ const CarDetails = () => {
       cancelButtonColor: "#ef4444",
       confirmButtonText: "Yes, Book!",
     });
-    
+
     if (user.email === buyer.email) {
-      return toast("Are You Not Allow Your Car Booking")
+      return toast("Are You Not Allow Your Car Booking");
     }
 
     if (result.isConfirmed) {

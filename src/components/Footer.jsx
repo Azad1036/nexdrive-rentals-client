@@ -1,78 +1,54 @@
-import { Link } from "react-router-dom";
+import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+import companyLogo from "../assets/NexDrive-Rentals-Logo.svg";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-10">
-      <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Section 1: About Next Zen */}
-        <div className="footer-section">
-          <h3 className="text-2xl font-bold mb-4">Next Zen</h3>
-          <p className="text-gray-400">
-            A platform to fund your dreams and support creative ideas.
+    <footer className="bg-gray-900 text-gray-300 pt-12 pb-8 px-6 mt-20">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Logo & Description */}
+        <div className="flex flex-col items-start space-y-4">
+          <div className="flex items-center space-x-3">
+            <img src={companyLogo} alt="Logo" className="h-12 w-12 rounded-full" />
+            <span className="text-2xl font-bold text-teal-400">NexDrive Rentals</span>
+          </div>
+          <p className="text-sm text-gray-400">
+            Drive your dreams with NexDrive. Book premium cars at affordable prices anytime, anywhere.
           </p>
         </div>
 
-        {/* Section 2: Quick Links */}
-        <div className="footer-section">
-          <h4 className="text-xl font-semibold mb-4">Quick Links</h4>
-          <ul className="space-y-2">
-            <li>
-              <Link
-                to="/"
-                className="text-gray-400 hover:text-secondary transition duration-300"
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/allCampaign"
-                className="text-gray-400 hover:text-secondary transition duration-300"
-              >
-                All Campaigns
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/addCampaign"
-                className="text-gray-400 hover:text-secondary transition duration-300"
-              >
-                Add New Campaign
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/myCampaign"
-                className="text-gray-400 hover:text-secondary transition duration-300"
-              >
-                My Campaigns
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/myDonations"
-                className="text-gray-400 hover:text-secondary transition duration-300"
-              >
-                My Donations
-              </Link>
-            </li>
-          </ul>
+        {/* Quick Links */}
+        <div className="flex flex-col space-y-3">
+          <h3 className="text-lg font-semibold text-white mb-2">Quick Links</h3>
+          <a href="/" className="hover:text-teal-400 transition">Home</a>
+          <a href="/available-cars" className="hover:text-teal-400 transition">Available Cars</a>
+          <a href="/add-car" className="hover:text-teal-400 transition">Add Car</a>
+          <a href="/my-bookings" className="hover:text-teal-400 transition">My Bookings</a>
         </div>
 
-        {/* Section 3: Contact Us */}
-        <div className="footer-section">
-          <h4 className="text-xl font-semibold mb-4">Contact Us</h4>
-          <p className="text-gray-400">Email: support@crowdcube.com</p>
-          <p className="text-gray-400">Phone: +880 123 456 789</p>
-          <p className="text-gray-400">
-            Address: 123 Dream Street, Dhaka, Bangladesh
-          </p>
+        {/* Social & Contact */}
+        <div className="flex flex-col space-y-4">
+          <h3 className="text-lg font-semibold text-white mb-2">Connect With Us</h3>
+          <div className="flex space-x-4">
+            <a href="https://facebook.com" target="_blank" className="text-gray-400 hover:text-teal-400">
+              <FaFacebookF size={20} />
+            </a>
+            <a href="https://twitter.com" target="_blank" className="text-gray-400 hover:text-teal-400">
+              <FaTwitter size={20} />
+            </a>
+            <a href="https://instagram.com" target="_blank" className="text-gray-400 hover:text-teal-400">
+              <FaInstagram size={20} />
+            </a>
+            <a href="https://linkedin.com" target="_blank" className="text-gray-400 hover:text-teal-400">
+              <FaLinkedinIn size={20} />
+            </a>
+          </div>
+          <p className="text-sm text-gray-400">Email: support@nexdrive.com</p>
+          <p className="text-sm text-gray-400">Phone: +880 1234-567890</p>
         </div>
       </div>
 
-      {/* Bottom Section */}
-      <div className="mt-8 border-t border-gray-700 pt-4 text-center text-gray-500 text-sm">
-        © {new Date().getFullYear()} Next Zen. All rights reserved.
+      <div className="mt-10 border-t border-gray-700 pt-6 text-center text-sm text-gray-500">
+        © {new Date().getFullYear()} NexDrive Rentals. All rights reserved.
       </div>
     </footer>
   );
