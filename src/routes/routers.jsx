@@ -12,6 +12,7 @@ import MyBookings from "../pages/MyBookings";
 import MyCars from "../pages/MyCars";
 import UpdateCar from "../pages/UpdateCar";
 import ManageCars from "../pages/ManageCars";
+import BookingChart from "../pages/BookingChart";
 
 const routers = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const routers = createBrowserRouter([
             <MyBookings />
           </PrivateRouter>
         ),
+      },
+      {
+        path: "/booking-Chart",
+        element: <BookingChart />,
       },
       {
         path: "manage-cars",
