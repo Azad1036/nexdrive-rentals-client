@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Loading from "../components/Loading";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
@@ -14,12 +13,12 @@ const MyCars = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
   const [filterDate, setFilterDate] = useState("");
-  const [sortPrice, setSortPrice] = useState("");
+
   console.log(filterDate);
 
   // Get My Car List
   const { data: myCarList = [], isLoading } = useQuery({
-    queryKey: ["myCars", user?.email, filterDate, sortPrice],
+    queryKey: ["myCars", user?.email, filterDate],
     queryFn: async () => {
       const { data } = await axiosSecure.get(
         `${import.meta.env.VITE_API_URL}/my-carList/${
@@ -79,9 +78,9 @@ const MyCars = () => {
       </div>
 
       {/* Sorting and Search UI */}
-      <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between items-center bg-white p-4 rounded-lg shadow-sm mb-6">
         {/* Left side: Sorting by Date */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 mb-4 sm:mb-0">
           <select
             onChange={(e) => setFilterDate(e.target.value)}
             value={filterDate}
@@ -94,7 +93,7 @@ const MyCars = () => {
         </div>
 
         {/* Right side: Sorting by Price */}
-        <div className="flex items-center space-x-4">
+        {/* <div className="flex items-center space-x-4">
           <select
             onChange={(e) => setSortPrice(e.target.value)}
             defaultValue="Sort by Price"
@@ -104,7 +103,7 @@ const MyCars = () => {
             <option value="price-asc">Price (Lowest First)</option>
             <option value="price-desc">Price (Highest First)</option>
           </select>
-        </div>
+        </div> */}
       </div>
 
       {/* Table of My Cars */}

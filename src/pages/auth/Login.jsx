@@ -1,14 +1,15 @@
 import React from "react";
 import { FaGithub, FaGoogle } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Name from "../../assets/Name.png";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-toastify";
-import axios from "axios";
+
 
 const Login = () => {
   const { setUser, loginAccount, googleLogin, githubLogin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   //! User Login Account
   const handleLoginForm = (e) => {
@@ -23,7 +24,7 @@ const Login = () => {
         const user = result.user;
         setUser(user);
         toast.success("You have successfully logged in!");
-        navigate("/");
+        navigate(location?.state ? location.state : "/");
       })
       .catch(() => {
         toast.error("Email or Password is incorrect");

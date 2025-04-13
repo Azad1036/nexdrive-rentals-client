@@ -13,6 +13,7 @@ const MyAllCars = ({ carlist, handleDeleteMyCar }) => {
     availability,
     carImage,
     currentData,
+    set_count,
   } = carlist;
 
   const formattedDate = format(new Date(currentData), "MMMM dd, yyyy");
@@ -36,7 +37,7 @@ const MyAllCars = ({ carlist, handleDeleteMyCar }) => {
         <div className="text-sm text-gray-900">${dailyRentalPrice}/day</div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-900">{0}</div>
+        <div className="text-sm text-gray-900">{set_count}</div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <span

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import companyLogo from "../assets/NexDrive-Rentals-Logo.svg";
 import "./custom/logo.css";
 import { FaBars, FaMoon } from "react-icons/fa";
@@ -106,7 +106,7 @@ const Navbar = () => {
     <nav className="bg-white shadow-lg p-4">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
+        <Link to={"/"} className="flex items-center space-x-2">
           <img
             src={companyLogo}
             alt="Logo"
@@ -115,7 +115,7 @@ const Navbar = () => {
           <span className="text-xl font-bold text-teal-500">
             NexDrive Rentals
           </span>
-        </div>
+        </Link>
 
         {/* Toggle Button for Mobile */}
         <div className="md:hidden">

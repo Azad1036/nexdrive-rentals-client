@@ -24,6 +24,21 @@ const Register = () => {
     const photoUrl = form.photoUrl.value;
     const password = form.password.value;
 
+    // Validation for password
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+
+    // Check if password meets the criteria
+    if (!passwordPattern.test(password)) {
+      toast.error("Password must have 1 uppercase, 1 lowercase, 1 number, 1 special char, and be at least 6 characters.");
+      return;
+    }
+
+    // Check if email is provided
+    if (!email) {
+      toast.error("Please provide a valid email.");
+      return;
+    }
+
     const registerData = { fullName, email, photoUrl, password };
     console.log(registerData);
 
@@ -32,18 +47,21 @@ const Register = () => {
         const user = result.user;
         setUser(user);
         navigate("/");
-        updateUserProfile({
-          displayName: fullName,
-          photoURL: photoUrl,
-        })
-          .then(() => {
-            toast.success("You have successfully registered!");
+        if (fullName || photoUrl) {
+          // Update user profile only if fullName or photoUrl is provided
+          updateUserProfile({
+            displayName: fullName,
+            photoURL: photoUrl,
           })
-          .catch((err) => {
-            {
+            .then(() => {
+              toast.success("You have successfully registered!");
+            })
+            .catch((err) => {
               err.message && toast.error("Try Again");
-            }
-          });
+            });
+        } else {
+          toast.success("You have successfully registered!");
+        }
       })
       .catch(() => {
         toast.error("Email Already Used");
@@ -55,16 +73,12 @@ const Register = () => {
     googleLogin()
       .then((result) => {
         const user = result.user;
-        {
-          user && toast.success("You have successfully Login");
-        }
+        user && toast.success("You have successfully Login");
         navigate("/");
       })
       .catch((err) => {
         const errorMessage = err.message;
-        {
-          errorMessage && toast.error("Pls try again");
-        }
+        errorMessage && toast.error("Please try again");
       });
   };
 
@@ -73,16 +87,12 @@ const Register = () => {
     githubLogin()
       .then((result) => {
         const user = result.user;
-        {
-          user && toast.success("You have successfully Login");
-        }
+        user && toast.success("You have successfully Login");
         navigate("/");
       })
       .catch((err) => {
         const errorMessage = err.message;
-        {
-          errorMessage && toast.error("Pls try again");
-        }
+        errorMessage && toast.error("Please try again");
       });
   };
 
@@ -96,7 +106,7 @@ const Register = () => {
           <input
             className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"
             type="text"
-            placeholder="Full Name"
+            placeholder="Full Name (Optional)"
             name="fullName"
           />
           <input
@@ -108,7 +118,7 @@ const Register = () => {
           <input
             className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-yellow-500 focus:outline-none"
             type="url"
-            placeholder="Photo Url"
+            placeholder="Photo URL (Optional)"
             name="photoUrl"
           />
           <input

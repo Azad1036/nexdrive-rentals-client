@@ -1,4 +1,3 @@
-import React from "react";
 import useAuth from "../hooks/useAuth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -15,7 +14,11 @@ const MyBookings = () => {
   const queryClient = useQueryClient();
 
   // My Booking Data Get From Database
-  const { data: myBooking = [], isLoading } = useQuery({
+  const {
+    data: myBooking = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["booking", user?.email],
     queryFn: async () => {
       const { data } = await axios.get(
@@ -31,7 +34,9 @@ const MyBookings = () => {
       await axiosSecure.delete(`/remove-bookingCar/${deleteBookingData}`);
     },
     onSuccess: () => {
+      console.log("Mutation successful, invalidating queries...");
       queryClient.invalidateQueries({ queryKey: ["booking", user?.email] });
+      refetch(); // Trigger refetch after mutation
       Swal.fire({
         title: "Deleted",
         text: "Your booking has been removed.",
@@ -39,6 +44,7 @@ const MyBookings = () => {
       });
     },
     onError: () => {
+      console.error("Error occurred during deletion");
       Swal.fire({
         title: "Error!",
         text: "There was a problem deleting your booking.",
@@ -68,57 +74,10 @@ const MyBookings = () => {
     }
   };
 
-  // // Modify Booking Date (UI only - no logic)
-  const handleModifyBooking = (booking) => {
-    
-    console.log("booking", booking);
-    Swal.fire({
-      title: "Modify Booking Dates",
-      html: `
-        <div class="text-left">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Current Dates</label>
-            <p class="text-gray-600">${new Date(
-              booking.startDate
-            ).toLocaleDateString()} - ${new Date(
-        booking.endDate
-      ).toLocaleDateString()}</p>
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">New Start Date</label>
-            <input type="date" id="startDate" class="w-full px-3 py-2 border rounded-lg">
-          </div>
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">New End Date</label>
-            <input type="date" id="endDate" class="w-full px-3 py-2 border rounded-lg">
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: "Update Booking",
-      cancelButtonText: "Cancel",
-      focusConfirm: false,
-      preConfirm: () => {
-        return {
-          startDate: document.getElementById("startDate").value,
-          endDate: document.getElementById("endDate").value,
-        };
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire(
-          "Updated!",
-          "Your booking dates have been modified.",
-          "success"
-        );
-      }
-    });
-  };
-
   // Change Status
   const handleStatusChange = async (id, previousStatus, status) => {
     console.log(id, previousStatus, status);
-    if (previousStatus === status || previousStatus === "Accepted") {
+    if (previousStatus === "Accepted") {
       return toast.success("Not Allowed");
     }
 
@@ -186,8 +145,6 @@ const MyBookings = () => {
         </div>
       </div>
 
-      
-
       {/* Bookings Table */}
       {myBooking.length > 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -218,7 +175,6 @@ const MyBookings = () => {
                     booking={booking}
                     key={booking._Id}
                     handleDeleteBooking={handleDeleteBooking}
-                    handleModifyBooking={handleModifyBooking}
                     handleStatusChange={handleStatusChange}
                   />
                 ))}

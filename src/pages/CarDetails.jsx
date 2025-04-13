@@ -1,4 +1,4 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../hooks/useAxiosSecure";
@@ -13,6 +13,7 @@ const CarDetails = () => {
   const email = user?.email;
   const formattedTime = new Date();
   const bookingCurrentDate = formatISO(formattedTime);
+  const navigate = useNavigate();
 
   const {
     _id: carId,
@@ -36,6 +37,7 @@ const CarDetails = () => {
     vehicleRegistrationNumber,
     carImage,
     status,
+    updateDate: "",
     email,
     buyer: buyer.email,
   };
@@ -50,8 +52,10 @@ const CarDetails = () => {
         text: "Your car is reserved.",
         icon: "success",
       });
+      navigate("/my-bookings");
     },
     onError: (error) => {
+      console.log(error);
       Swal.fire({
         title: "Error!",
         text: "You Already Booking This Car",

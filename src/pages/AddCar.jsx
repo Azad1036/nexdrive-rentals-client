@@ -32,8 +32,8 @@ const AddCar = () => {
 
       navigation("/my-cars");
     },
-    onError: () => {
-      console.log(364);
+    onError: (error) => {
+      console.error(error); // Log the actual error
     },
   });
 
@@ -156,15 +156,11 @@ const AddCar = () => {
                 <input
                   onChange={handleFeatureChange}
                   id="feature-gps"
-                  name="features"
                   type="checkbox"
                   value="GPS"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label
-                  htmlFor="feature-gps"
-                  className="ml-2 text-sm text-gray-700"
-                >
+                <label htmlFor="feature-gps" className="ml-2 text-sm text-gray-700">
                   GPS
                 </label>
               </div>
@@ -172,15 +168,11 @@ const AddCar = () => {
                 <input
                   onChange={handleFeatureChange}
                   id="feature-ac"
-                  name="features"
                   type="checkbox"
                   value="AC"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label
-                  htmlFor="feature-ac"
-                  className="ml-2 text-sm text-gray-700"
-                >
+                <label htmlFor="feature-ac" className="ml-2 text-sm text-gray-700">
                   AC
                 </label>
               </div>
@@ -188,15 +180,11 @@ const AddCar = () => {
                 <input
                   onChange={handleFeatureChange}
                   id="feature-bluetooth"
-                  name="features"
                   type="checkbox"
                   value="Bluetooth"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label
-                  htmlFor="feature-bluetooth"
-                  className="ml-2 text-sm text-gray-700"
-                >
+                <label htmlFor="feature-bluetooth" className="ml-2 text-sm text-gray-700">
                   Bluetooth
                 </label>
               </div>
@@ -204,15 +192,11 @@ const AddCar = () => {
                 <input
                   onChange={handleFeatureChange}
                   id="feature-sunroof"
-                  name="features"
                   type="checkbox"
                   value="Sunroof"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label
-                  htmlFor="feature-sunroof"
-                  className="ml-2 text-sm text-gray-700"
-                >
+                <label htmlFor="feature-sunroof" className="ml-2 text-sm text-gray-700">
                   Sunroof
                 </label>
               </div>
@@ -258,20 +242,19 @@ const AddCar = () => {
             />
           </div>
 
-          {/* Description (Single Line, Full Width) */}
+          {/* Description */}
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">
               Description
             </label>
             <textarea
-              type="text"
               name="description"
               className="mt-1 w-full p-2 border rounded-md focus:ring focus:ring-blue-300 focus:outline-none"
               placeholder="Describe the car..."
             />
           </div>
 
-          {/* Submit Button (Full Width, Spanning Both Columns) */}
+          {/* Submit Button */}
           <div className="md:col-span-2">
             <button
               type="submit"
