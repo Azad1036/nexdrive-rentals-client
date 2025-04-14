@@ -55,7 +55,7 @@ const CarDetails = () => {
       navigate("/my-bookings");
     },
     onError: (error) => {
-      console.log(error);
+      // console.log(error);
       Swal.fire({
         title: "Error!",
         text: "You Already Booking This Car",
@@ -83,7 +83,7 @@ const CarDetails = () => {
       try {
         await mutateAsync(bookingData);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     }
   };

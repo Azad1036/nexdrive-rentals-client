@@ -1,6 +1,5 @@
 import useAuth from "../hooks/useAuth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import Loading from "../components/Loading";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
@@ -21,7 +20,7 @@ const MyBookings = () => {
   } = useQuery({
     queryKey: ["booking", user?.email],
     queryFn: async () => {
-      const { data } = await axios.get(
+      const { data } = await axiosSecure.get(
         `${import.meta.env.VITE_API_URL}/my-all-booking/${user?.email}`
       );
       return data;
@@ -34,7 +33,7 @@ const MyBookings = () => {
       await axiosSecure.delete(`/remove-bookingCar/${deleteBookingData}`);
     },
     onSuccess: () => {
-      console.log("Mutation successful, invalidating queries...");
+      // console.log("Mutation successful, invalidating queries...");
       queryClient.invalidateQueries({ queryKey: ["booking", user?.email] });
       refetch(); // Trigger refetch after mutation
       Swal.fire({
@@ -76,7 +75,7 @@ const MyBookings = () => {
 
   // Change Status
   const handleStatusChange = async (id, previousStatus, status) => {
-    console.log(id, previousStatus, status);
+    // console.log(id, previousStatus, status);
     if (previousStatus === "Accepted") {
       return toast.success("Not Allowed");
     }
@@ -84,7 +83,7 @@ const MyBookings = () => {
     try {
       await axiosSecure.patch(`/update-booking-status/${id}`, { status });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
     handleStatusChange();
   };

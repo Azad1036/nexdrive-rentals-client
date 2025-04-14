@@ -71,7 +71,7 @@ const MyAllBookingCar = ({
       toast.success("Update");
 
       if (response.status === 200) {
-        console.log("✅ Booking Updated Successfully:", response.data);
+        // console.log("✅ Booking Updated Successfully:", response.data);
 
         // Show toast on successful update
         toast.success("Booking updated successfully!", {

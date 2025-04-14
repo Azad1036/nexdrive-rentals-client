@@ -1,7 +1,6 @@
 import React from "react";
 import useAuth from "../hooks/useAuth";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import Loading from "../components/Loading";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
@@ -19,7 +18,7 @@ const ManageCars = () => {
   const { data: manageCar = [], isLoading } = useQuery({
     queryKey: ["booking", user?.email],
     queryFn: async () => {
-      const { data } = await axios.get(
+      const { data } = await axiosSecure.get(
         `${import.meta.env.VITE_API_URL}/my-all-booking/${
           user?.email
         }?buyer=true`

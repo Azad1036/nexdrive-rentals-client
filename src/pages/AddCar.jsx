@@ -69,7 +69,8 @@ const AddCar = () => {
     try {
       await mutateAsync(addCarData);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      
     }
   };
 

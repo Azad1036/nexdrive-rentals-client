@@ -1,15 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import React from "react";
 import Loading from "./Loading";
 import { Link } from "react-router-dom";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const RecentListings = () => {
-  const { data: listings = [], isLoading, isError } = useQuery({
+  const axiosSecure = useAxiosSecure();
+  const {
+    data: listings = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["cars"],
     queryFn: async () => {
       try {
-        const { data } = await axios.get(
+        const { data } = await axiosSecure.get(
           `${import.meta.env.VITE_API_URL}/recent-allCars`
         );
         return data;
@@ -20,7 +25,13 @@ const RecentListings = () => {
   });
 
   if (isLoading) return <Loading />;
-  if (isError) return <div className="text-red-600 text-center">Something went wrong while fetching the listings. Please try again later.</div>;
+  if (isError)
+    return (
+      <div className="text-red-600 text-center">
+        Something went wrong while fetching the listings. Please try again
+        later.
+      </div>
+    );
 
   return (
     <section className="py-16 bg-white">

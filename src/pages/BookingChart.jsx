@@ -11,19 +11,20 @@ import {
   Tooltip,
 } from "recharts";
 import useAuth from "../hooks/useAuth";
-import axios from "axios";
 import Loading from "../components/Loading";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const BookingChart = () => {
   const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
   const { data: rechartUse = [], isLoading } = useQuery({
     queryKey: ["booking", user?.email],
     queryFn: async () => {
-      const { data } = await axios.get(
+      const { data } = await axiosSecure.get(
         `${import.meta.env.VITE_API_URL}/my-all-booking/${user?.email}`
       );
-      console.log("Fetched data:", data); // Optional: Debugging
+      // console.log("Fetched data:", data); // Optional: Debugging
       return data;
     },
   });

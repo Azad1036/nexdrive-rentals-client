@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import Loading from "../components/Loading";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
@@ -17,7 +16,7 @@ const UpdateCar = () => {
   const { data: updateCar, isLoading } = useQuery({
     queryKey: ["myCars", id],
     queryFn: async () => {
-      const { data } = await axios.get(
+      const { data } = await axiosSecure.get(
         `${import.meta.env.VITE_API_URL}/update-car/${id}`
       );
       return data;
@@ -69,7 +68,7 @@ const UpdateCar = () => {
       location,
       description,
     };
-    console.log(updateCarData);
+    // console.log(updateCarData);
 
     const result = await Swal.fire({
       title: "Are you sure?",

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import Loading from "../components/Loading";
 import { Link } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const AllAvailableCars = () => {
   const [gridView, setGridView] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+  const axiosSecure = useAxiosSecure();
 
   // Debounce search term to avoid rapid API calls
   useEffect(() => {
@@ -23,7 +24,7 @@ const AllAvailableCars = () => {
   const { data: cars = [], isLoading } = useQuery({
     queryKey: ["cars", debouncedSearchTerm], // Use debounced search term for better performance
     queryFn: async () => {
-      const { data } = await axios.get(
+      const { data } = await axiosSecure.get(
         `${
           import.meta.env.VITE_API_URL
         }/all-cars?searchTerm=${debouncedSearchTerm}`
@@ -191,7 +192,7 @@ const AllAvailableCars = () => {
                     </p>
                   </div>
                   <div className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                   Count : {car?.set_count || "0"}
+                    Count : {car?.set_count || "0"}
                   </div>
                 </div>
 
